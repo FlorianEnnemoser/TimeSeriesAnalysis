@@ -9,7 +9,7 @@ def mean_min_max_temperatures(df):
     ds_mean = df.temperature_2_meter.mean(["longitude", "latitude"])
     ds_min = df.temperature_2_meter.min(["longitude", "latitude"])
     ds_max = df.temperature_2_meter.max(["longitude", "latitude"])
-
+    return df
 
 # needs to accept xarray and do calc then!
 def climatology(df):
