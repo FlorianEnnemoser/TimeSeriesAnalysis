@@ -4,8 +4,23 @@ import xarray as xr
 from scipy import stats
 
 
+def mean_min_max_temperatures(df):
+    K = 273.15
+    ds_mean = df.temperature_2_meter.mean(["longitude", "latitude"])
+    ds_min = df.temperature_2_meter.min(["longitude", "latitude"])
+    ds_max = df.temperature_2_meter.max(["longitude", "latitude"])
+
+
+# needs to accept xarray and do calc then!
 def climatology(df):
     """create climatology of given dataframe and return them"""
+    
+    ds_clim = df.sel(time=slice("1991-01-01", "2019-12-31")).groupby("time.month").mean()
+    
+    ds_anom = df.groupby("time.month") - ds_clim
+    ds_anom = ds_anom.temperature_2_meter.mean(["longitude", "latitude"]) 
+    
+    
     climatology = df.groupby(df.index.month).mean()
     climatology.index.name = "month"
     monthly_means = df.groupby([df.index.year, df.index.month]).mean()
