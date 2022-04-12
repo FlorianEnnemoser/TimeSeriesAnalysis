@@ -6,6 +6,7 @@ from datetime import datetime
 import sys
 import preprocessing
 import calculation
+import xarray as xr
 # @click.command()
 # @click.option(
 #     "--input_file",
@@ -48,8 +49,8 @@ def execute_script(input_file,lat_range,anomaly,trend):#, trend,anomaly, pp, lat
     
     loaded_data, csv_flag = input_data_func(input_file)
     preprocessed_data = preprocessing_TSA(loaded_data,csv_flag,lat_range)
-    calculation_TSA(preprocessed_data,lat_range,anomaly,trend,csv_flag)
-    # postprocessing_TSA()
+    calculated_data = calculation_TSA(preprocessed_data,lat_range,anomaly,trend,csv_flag)
+    postprocessing_TSA(output_file)
     # output_data_func()
     t2 = datetime.now()
     print("Elapsed time: {} (s) \n script finished.".format((t2 - t1).seconds))
@@ -78,12 +79,25 @@ def preprocessing_TSA(df,csv_flag,lat_range_flag):
 
 def calculation_TSA(df,lat_range,anomaly,trend,csv_flag):
     if not csv_flag:
-        df = calculation.mean_min_max_temperatures(df)
-        print(df)
+        ds_mean, ds_min, ds_max = calculation.mean_min_max_temperatures(df)    
+    else:
+        ds_mean = df.t
+        ds_max = df.tmax
+        ds_min = df.tmin
+
+    if anomaly:
+        ds_anom = calculation.anomaly(ds_mean)
+        df_merged = xr.merge([ds_mean,ds_min, ds_max,ds_anom])
+    else:
+        df_merged = xr.merge([ds_mean,ds_min, ds_max])
+    
+    return df_merged
+
+def postprocessing_TSA(output_file):
+    
     return
 
-def postprocessing_TSA():
-    return
+    
 def output_data_func():
     return
 #io -i
@@ -99,4 +113,4 @@ if __name__ == "__main__":
     f1 = '../TAG_Datensatz_19220101_20220101.csv'
     f2 = '../temp_data.nc' 
     
-    execute_script(f2,(40,60),True,True)
+    execute_script(f1,(40,60),True,True)

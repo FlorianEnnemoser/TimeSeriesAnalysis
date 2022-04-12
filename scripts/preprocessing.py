@@ -11,18 +11,19 @@ def csv_to_xarray(df):
     df["time"] = pd.to_datetime(df.time)
     df = df.set_index("time")
     df = df.to_xarray()
+    df = df.dropna(dim='time')
     return df
 
 
 def netcdf_latitude_limiting(ds, latmin, latmax):
     """Select latitude min / max range given by user"""
     ds = ds.sel(latitude=slice(latmin, latmax))
-    # ds_edit = xr.merge(
-    #     [
-    #         ds_mean.rename("t"),
-    #         ds_min.rename("tmin"),
-    #         ds_max.rename("tmax"),
-    #         ds_anom.rename("anomaly"),
-    #     ]
-    # )
+    ds = ds.temperature_2_meter.rename("t")
+    
+    if ds.attrs['units'] =="K":
+        K = 273.15
+        ds -= K
+        ds.attrs['units'] = "°C"
+        print("Successfully (automatically) changed temperature scale from K to °C")        
+    
     return ds

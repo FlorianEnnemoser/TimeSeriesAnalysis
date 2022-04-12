@@ -16,4 +16,11 @@ def df_add_calculation_results(df):
     df_tot = df_tot.to_xarray()
     df_tot = df_tot.rename({"index": "time"})
     
-    
+
+
+# merge dataarray to dataset , add the calculation results
+df = xr.merge([
+ds_mean.rename("t"),
+ds_min.rename("tmin"),
+ds_max.rename("tmax")]
+)    
