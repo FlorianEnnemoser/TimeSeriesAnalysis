@@ -35,7 +35,7 @@ def fig_abs_values(x, mean, minimum, maximum):
     create_subplot(fig,[[x, maximum]], 313, "max temp.", "r", f"max. Temperature ({degree_sign}C)")
     plt.tight_layout()
 
-def fig_abs_anom_values(x, mean, minimum, maximum, x_anom, anomaly):
+def fig_abs_anom_values(x, mean, minimum, maximum,  anomaly):
     fig = plt.figure(figsize=(6, 10))
     create_subplot(fig,
         [[x, mean]], 411, "daily temp.", "grey", f"mean Temperature ({degree_sign}C)"
@@ -45,13 +45,13 @@ def fig_abs_anom_values(x, mean, minimum, maximum, x_anom, anomaly):
     )
     create_subplot(fig,[[x, maximum]], 413, "max temp.", "r", f"max. Temperature ({degree_sign}C)")
     create_subplot(fig,
-        [[x_anom, anomaly]], 414, "anomaly temp.", "g", f"anomaly Temperature ({degree_sign}C)"
+        [[x, anomaly]], 414, "anomaly temp.", "g", f"anomaly Temperature ({degree_sign}C)"
     )
     plt.tight_layout()
 
 
 def fig_anom_values(x, anomaly):
-    fig = plt.figure(figsize=(6, 10))
+    fig = plt.figure(figsize=(7, 5))
     create_subplot(fig,
         [[x, anomaly]], 111, "anomaly temp.", "g", f"anomaly Temperature ({degree_sign}C)"
     )

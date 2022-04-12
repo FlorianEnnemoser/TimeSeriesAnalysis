@@ -45,7 +45,7 @@ import xarray as xr
 #     is_flag=True,
 #     help="select the southern then the northern most latitude, separated by a SPACE. Southern latitudes need to be entered like > -45.2 <. Do not enter degree symbol.",
 # )
-def cli(input_file,lat_range,anomaly,trend,output_file,pp):#, trend,anomaly, pp, lat_range, pp_option, output_file):
+def cli(input_file,lat_range,anomaly,trend,pp,output_file):#, trend,anomaly, pp, lat_range, pp_option, output_file):
     """Simple program that executes the main script. Also prints the elapsed time."""
     t1 = datetime.now()
     print(" Starting script at time: {}".format(t1.strftime('%c')))
@@ -53,13 +53,15 @@ def cli(input_file,lat_range,anomaly,trend,output_file,pp):#, trend,anomaly, pp,
     loaded_data, csv_flag = input_data_func(input_file)
     preprocessed_df = preprocessing_TSA(loaded_data,csv_flag,lat_range)
     calculated_df = calculation_TSA(preprocessed_df,lat_range,anomaly,trend,csv_flag)
-    pp_df = postprocessing_TSA(calculated_df,output_file,pp,trend)
-    # output_data_func()
+    postprocessing_TSA(calculated_df,pp,trend,anomaly)
+    output_data_func(calculated_df,output_file,input_file)
+    
     t2 = datetime.now()
     print("Elapsed time: {} (s) \n script finished.".format((t2 - t1).seconds))
 
 
 def input_data_func(input_file):
+    """"""
     if input_file.endswith(".csv"):
         df = io_TSA.input_csv(input_file)
         csv_flag = True
@@ -106,60 +108,52 @@ def calculation_TSA(df,lat_range,anomaly,trend,csv_flag):
             
     return df_merged
 
-def postprocessing_TSA(calc_df,output_file,pp,trend):
-    print(calc_df)
+def postprocessing_TSA(calc_df,pp,trend,anomaly):
     if trend:
         if pp == "abs":
             plotting.fig_abs_trends_values(calc_df.time,
                                            calc_df.t, calc_df.tmin, calc_df.tmax,
                                            calc_df.trend_mean,calc_df.trend_min,calc_df.trend_max
                                            )
-        if pp == "anom":
+        if pp == "anom" and anomaly:
             plotting.fig_anom_trends_values(calc_df.time,
                                            calc_df.tanomaly,calc_df.trend_anomaly)
-        if pp == "absanom":
+        if pp == "absanom" and anomaly:
             plotting.fig_abs_anom_trends_values(
                 calc_df.time, 
                 calc_df.t, calc_df.tmin, calc_df.tmax,
                 calc_df.tanomaly,
                 calc_df.trend_mean,calc_df.trend_min,calc_df.trend_max,calc_df.trend_anomaly
             )
-        plotting.save_figure(f"{output_dir}/output_plotting_trends_{mode}.png")
+        plotting.save_figure(f"output_plotting_trends_{pp}.png")
     else:
-
+        if pp == "abs":
+            plotting.fig_abs_values(calc_df.time,calc_df.t, calc_df.tmin, calc_df.tmax)
+        if pp == "anom" and anomaly:
+            plotting.fig_anom_values(calc_df.time,calc_df.tanomaly)
+        if pp == "absanom" and anomaly:
+            plotting.fig_abs_anom_values(calc_df.time,calc_df.t, calc_df.tmin, calc_df.tmax,calc_df.tanomaly)
+        plotting.save_figure(f"output_plotting_{pp}.png")
+    
+    print("Finished plotting.")
+    
+def output_data_func(df,output_file,input_file):
+    if output_file:
+        input_file_split = input_file.split(".")[-1]
+        print(input_file_split)
+        filename = f'analyzed_TimeSeries_input_{input_file_split}.nc'
+        print(f"Saving output to {filename}")
+        df.to_netcdf(f'{filename}')
+        print("################ DATA SAVED ################\n",df
+              ,"\n########################################")
         
-    
-
-    # else:
-    #     print("plotting and not adding Trend")
-    #     if mode == "abs":
-    #         plotting.fig_abs_values(time, temp, tmin, tmax)
-    #     if mode == "anom":
-    #         plotting.fig_anom_values(anomaly_t, anomaly)
-    #     if mode == "absanom":
-    #         plotting.fig_abs_anom_values(time, temp, tmin, tmax, anomaly_t, anomaly)
-    #     plotting.save_figure(f"{output_dir}/output_plotting_{mode}.png")
-
-
-        
-    
-    return
-
-    
-def output_data_func():
-    return
-#io -i
-#preprocessing
-#calculation
-#postprocessing
-#io -o
-
-    
+    else:
+        print("Not saving analyzed data.")
 
 
 if __name__ == "__main__":
     f1 = '../TAG_Datensatz_19220101_20220101.csv'
     f2 = '../temp_data.nc' 
     
-    cli(f2,(40,60),True,True,True,'absanom')
+    cli(f1,(40,60),True,True,'anom',False)
     
