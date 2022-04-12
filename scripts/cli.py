@@ -6,7 +6,9 @@ from datetime import datetime
 import sys
 import preprocessing
 import calculation
+import plotting
 import xarray as xr
+
 # @click.command()
 # @click.option(
 #     "--input_file",
@@ -15,8 +17,9 @@ import xarray as xr
 # )
 # @click.option(
 #     "--pp",is_flag=True,
-#     default=True,
-#     help="do postprocessing and create time series plot. Figures are saved in the >output< folder.",
+#     type=click.Choice(["abs", "anom", "absanom"]),
+#     default="absanom",
+#     help="option for post processing. Figures display only absolute values (abs), only anomaly (anom) or both (absanom). Default is (absanom)",
 # )
 # @click.option(
 #     "--pp_option",
@@ -42,15 +45,15 @@ import xarray as xr
 #     is_flag=True,
 #     help="select the southern then the northern most latitude, separated by a SPACE. Southern latitudes need to be entered like > -45.2 <. Do not enter degree symbol.",
 # )
-def execute_script(input_file,lat_range,anomaly,trend):#, trend,anomaly, pp, lat_range, pp_option, output_file):
+def cli(input_file,lat_range,anomaly,trend,output_file,pp):#, trend,anomaly, pp, lat_range, pp_option, output_file):
     """Simple program that executes the main script. Also prints the elapsed time."""
     t1 = datetime.now()
     print(" Starting script at time: {}".format(t1.strftime('%c')))
     
     loaded_data, csv_flag = input_data_func(input_file)
-    preprocessed_data = preprocessing_TSA(loaded_data,csv_flag,lat_range)
-    calculated_data = calculation_TSA(preprocessed_data,lat_range,anomaly,trend,csv_flag)
-    postprocessing_TSA(output_file)
+    preprocessed_df = preprocessing_TSA(loaded_data,csv_flag,lat_range)
+    calculated_df = calculation_TSA(preprocessed_df,lat_range,anomaly,trend,csv_flag)
+    pp_df = postprocessing_TSA(calculated_df,output_file,pp,trend)
     # output_data_func()
     t2 = datetime.now()
     print("Elapsed time: {} (s) \n script finished.".format((t2 - t1).seconds))
@@ -91,9 +94,54 @@ def calculation_TSA(df,lat_range,anomaly,trend,csv_flag):
     else:
         df_merged = xr.merge([ds_mean,ds_min, ds_max])
     
+    if trend:
+        trend_mean_array = calculation.lin_reg(df_merged)
+        
+        df_merged['trend_mean'] = ("time",trend_mean_array[0])
+        df_merged['trend_min'] = ("time",trend_mean_array[1])
+        df_merged['trend_max'] = ("time",trend_mean_array[2])
+        
+        if anomaly:
+            df_merged['trend_anomaly'] = ("time",trend_mean_array[3])
+            
     return df_merged
 
-def postprocessing_TSA(output_file):
+def postprocessing_TSA(calc_df,output_file,pp,trend):
+    print(calc_df)
+    if trend:
+        if pp == "abs":
+            plotting.fig_abs_trends_values(calc_df.time,
+                                           calc_df.t, calc_df.tmin, calc_df.tmax,
+                                           calc_df.trend_mean,calc_df.trend_min,calc_df.trend_max
+                                           )
+        if pp == "anom":
+            plotting.fig_anom_trends_values(calc_df.time,
+                                           calc_df.tanomaly,calc_df.trend_anomaly)
+        if pp == "absanom":
+            plotting.fig_abs_anom_trends_values(
+                calc_df.time, 
+                calc_df.t, calc_df.tmin, calc_df.tmax,
+                calc_df.tanomaly,
+                calc_df.trend_mean,calc_df.trend_min,calc_df.trend_max,calc_df.trend_anomaly
+            )
+        plotting.save_figure(f"{output_dir}/output_plotting_trends_{mode}.png")
+    else:
+
+        
+    
+
+    # else:
+    #     print("plotting and not adding Trend")
+    #     if mode == "abs":
+    #         plotting.fig_abs_values(time, temp, tmin, tmax)
+    #     if mode == "anom":
+    #         plotting.fig_anom_values(anomaly_t, anomaly)
+    #     if mode == "absanom":
+    #         plotting.fig_abs_anom_values(time, temp, tmin, tmax, anomaly_t, anomaly)
+    #     plotting.save_figure(f"{output_dir}/output_plotting_{mode}.png")
+
+
+        
     
     return
 
@@ -113,4 +161,5 @@ if __name__ == "__main__":
     f1 = '../TAG_Datensatz_19220101_20220101.csv'
     f2 = '../temp_data.nc' 
     
-    execute_script(f1,(40,60),True,True)
+    cli(f2,(40,60),True,True,True,'absanom')
+    

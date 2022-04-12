@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import xarray as xr
-from scipy import stats
 
 
 def mean_min_max_temperatures(df):    
@@ -34,34 +33,16 @@ def anomaly(df):
             print(e2)
     return anom
 
-def lin_reg(x, y):
-    """Linear Regression with Scipy Stats Library"""
-    x = np.array(x, dtype=float)
-    result = stats.linregress(x, y)
-    y_fitted = result.intercept + result.slope * x
+def lin_reg(df):
+    """Linear Regression with Numpy Polyfit Library"""
+    x = np.array(df.time, dtype=float)
+    y = df.to_array()
+    k_arr, d_arr = np.polyfit(x,y.T,1)
+
+    y_fitted = np.empty_like(y)
+    for i,k in enumerate(k_arr):
+        y_fitted[i,:] = k*x+d_arr[i]
+        
     return y_fitted
-
-def trend_analysis(df):
-    """
-    Trend analysis of given dataframe using the function lin_reg. 
-    Then combining it to a single xarray
-    """
-    print("start calculating trends...")
-    
-    
-    anomaly_t_r = np.array(anomaly_t, dtype=float)
-    
-    reg_temp = lin_reg(time_r, temp, int(len(time_r) * sampling_percent))
-
-    print("...finished calculating trends!")
-    
-    d = {"linregMean": reg_temp, "linregMin": reg_tmin, "linregMax": reg_tmax}
-    d_a = {"linregAnom": reg_tanom}
-    df_trends1 = pd.DataFrame(data=d, index=time)
-    df_trends2 = pd.DataFrame(data=d_a, index=anomaly_t)
-    df_trends = pd.concat([df_trends1, df_trends2], axis=1)
-    df_trends = df_trends.to_xarray()
-    df_trends = df_trends.rename({"index": "time"})
-    return df_trends
 
 
