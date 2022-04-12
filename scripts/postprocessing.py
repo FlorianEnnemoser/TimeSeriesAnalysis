@@ -1,26 +1,29 @@
-import pandas as pd
-import numpy as np
 import plotting
-import xarray as xr
-from scipy import stats
 
-
-
-def df_add_calculation_results(df):
-    analysis = climate(df)
-    anomaly = analysis[2].t.values
-    anomaly_t = analysis[2].t.index.values
-    d_anom = {"anomaly": anomaly}
-    df_analysis = pd.DataFrame(data=d_anom, index=anomaly_t)
-    df_tot = pd.concat([df, df_analysis], axis=1)
-    df_tot = df_tot.to_xarray()
-    df_tot = df_tot.rename({"index": "time"})
+def create_plotting_with_trends(calc_df,pp,anomaly):
+    if pp == "abs":
+        plotting.fig_abs_trends_values(calc_df.time,
+                                       calc_df.t, calc_df.tmin, calc_df.tmax,
+                                       calc_df.trend_mean,calc_df.trend_min,calc_df.trend_max
+                                       )
+    if pp == "anom" and anomaly:
+        plotting.fig_anom_trends_values(calc_df.time,
+                                       calc_df.tanomaly,calc_df.trend_anomaly)
+    if pp == "absanom" and anomaly:
+        plotting.fig_abs_anom_trends_values(
+            calc_df.time, 
+            calc_df.t, calc_df.tmin, calc_df.tmax,
+            calc_df.tanomaly,
+            calc_df.trend_mean,calc_df.trend_min,calc_df.trend_max,calc_df.trend_anomaly
+        )
+    plotting.save_figure(f"output_plotting_trends_{pp}.png")
     
-
-
-# merge dataarray to dataset , add the calculation results
-df = xr.merge([
-ds_mean.rename("t"),
-ds_min.rename("tmin"),
-ds_max.rename("tmax")]
-)    
+def create_plotting_without_trends(calc_df,pp,anomaly):
+        if pp == "abs":
+            plotting.fig_abs_values(calc_df.time,calc_df.t, calc_df.tmin, calc_df.tmax)
+        if pp == "anom" and anomaly:
+            plotting.fig_anom_values(calc_df.time,calc_df.tanomaly)
+        if pp == "absanom" and anomaly:
+            plotting.fig_abs_anom_values(calc_df.time,calc_df.t, calc_df.tmin, calc_df.tmax,calc_df.tanomaly)
+        plotting.save_figure(f"output_plotting_{pp}.png")
+    

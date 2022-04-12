@@ -1,50 +1,48 @@
-import os
-import time
 import click
 import io_TSA
 from datetime import datetime
 import sys
 import preprocessing
+import postprocessing
 import calculation
-import plotting
 import xarray as xr
 
-# @click.command()
-# @click.option(
-#     "--input_file",
-#     default="TAG_Datensatz_19220101_20220101.csv",
-#     help="input file, has to be inside the >data< folder.",
-# )
-# @click.option(
-#     "--pp",is_flag=True,
-#     type=click.Choice(["abs", "anom", "absanom"]),
-#     default="absanom",
-#     help="option for post processing. Figures display only absolute values (abs), only anomaly (anom) or both (absanom). Default is (absanom)",
-# )
-# @click.option(
-#     "--pp_option",
-#     type=click.Choice(["abs", "anom", "absanom"]),
-#     default="absanom",
-#     help="option for post processing. Figures display only absolute values (abs), only anomaly (anom) or both (absanom). Default is (absanom)",
-# )
-# @click.option(
-#     "--trend",is_flag=True, default=False, help="calculate linear regression for all temperatures."
-# )
-# @click.option(
-#     "--anomaly", is_flag=True,default=False, help="calculate anamoly of given temperature data."
-# )
-# @click.option(
-#     "--output_file",is_flag=True,
-#     default=False,
-#     help="select true if an outputfile should be created in the >output< folder",
-# )
-# @click.option(
-#     "--lat_range",
-#     nargs=2,
-#     type=float,
-#     is_flag=True,
-#     help="select the southern then the northern most latitude, separated by a SPACE. Southern latitudes need to be entered like > -45.2 <. Do not enter degree symbol.",
-# )
+@click.command()
+@click.option(
+    "--input_file",
+    default="TAG_Datensatz_19220101_20220101.csv",
+    help="input file, has to be inside the >data< folder.",
+)
+@click.option(
+    "--pp",is_flag=True,
+    type=click.Choice(["abs", "anom", "absanom"]),
+    default="absanom",
+    help="option for post processing. Figures display only absolute values (abs), only anomaly (anom) or both (absanom). Default is (absanom)",
+)
+@click.option(
+    "--pp_option",
+    type=click.Choice(["abs", "anom", "absanom"]),
+    default="absanom",
+    help="option for post processing. Figures display only absolute values (abs), only anomaly (anom) or both (absanom). Default is (absanom)",
+)
+@click.option(
+    "--trend",is_flag=True, default=False, help="calculate linear regression for all temperatures."
+)
+@click.option(
+    "--anomaly", is_flag=True,default=False, help="calculate anamoly of given temperature data."
+)
+@click.option(
+    "--output_file",is_flag=True,
+    default=False,
+    help="select true if an outputfile should be created in the >output< folder",
+)
+@click.option(
+    "--lat_range",
+    nargs=2,
+    type=float,
+    is_flag=True,
+    help="select the southern then the northern most latitude, separated by a SPACE. Southern latitudes need to be entered like > -45.2 <. Do not enter degree symbol.",
+)
 def cli(input_file,lat_range,anomaly,trend,pp,output_file):#, trend,anomaly, pp, lat_range, pp_option, output_file):
     """Simple program that executes the main script. Also prints the elapsed time."""
     t1 = datetime.now()
@@ -110,31 +108,9 @@ def calculation_TSA(df,lat_range,anomaly,trend,csv_flag):
 
 def postprocessing_TSA(calc_df,pp,trend,anomaly):
     if trend:
-        if pp == "abs":
-            plotting.fig_abs_trends_values(calc_df.time,
-                                           calc_df.t, calc_df.tmin, calc_df.tmax,
-                                           calc_df.trend_mean,calc_df.trend_min,calc_df.trend_max
-                                           )
-        if pp == "anom" and anomaly:
-            plotting.fig_anom_trends_values(calc_df.time,
-                                           calc_df.tanomaly,calc_df.trend_anomaly)
-        if pp == "absanom" and anomaly:
-            plotting.fig_abs_anom_trends_values(
-                calc_df.time, 
-                calc_df.t, calc_df.tmin, calc_df.tmax,
-                calc_df.tanomaly,
-                calc_df.trend_mean,calc_df.trend_min,calc_df.trend_max,calc_df.trend_anomaly
-            )
-        plotting.save_figure(f"output_plotting_trends_{pp}.png")
+        postprocessing.create_plotting_with_trends(calc_df,pp,trend,anomaly)
     else:
-        if pp == "abs":
-            plotting.fig_abs_values(calc_df.time,calc_df.t, calc_df.tmin, calc_df.tmax)
-        if pp == "anom" and anomaly:
-            plotting.fig_anom_values(calc_df.time,calc_df.tanomaly)
-        if pp == "absanom" and anomaly:
-            plotting.fig_abs_anom_values(calc_df.time,calc_df.t, calc_df.tmin, calc_df.tmax,calc_df.tanomaly)
-        plotting.save_figure(f"output_plotting_{pp}.png")
-    
+        postprocessing.create_plotting_without_trends(calc_df,pp,trend,anomaly)
     print("Finished plotting.")
     
 def output_data_func(df,output_file,input_file):
@@ -152,8 +128,8 @@ def output_data_func(df,output_file,input_file):
 
 
 if __name__ == "__main__":
-    f1 = '../TAG_Datensatz_19220101_20220101.csv'
-    f2 = '../temp_data.nc' 
-    
-    cli(f1,(40,60),True,True,'anom',False)
+    # f1 = '../TAG_Datensatz_19220101_20220101.csv'
+    # f2 = '../temp_data.nc' 
+    cli()
+    # cli(f1,(40,60),True,True,'anom',False)
     

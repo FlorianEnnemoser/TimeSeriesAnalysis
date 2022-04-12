@@ -1,8 +1,5 @@
 import pandas as pd
-import numpy as np
-import plotting
 import xarray as xr
-from scipy import stats
 import os
 
 

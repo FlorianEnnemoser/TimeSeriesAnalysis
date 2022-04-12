@@ -1,10 +1,4 @@
 import pandas as pd
-import numpy as np
-import plotting
-import xarray as xr
-from scipy import stats
-
-
 
 def csv_to_xarray(df):
     """convert index to datetime of given dataframe and df to xarray."""

@@ -1,7 +1,4 @@
-import pandas as pd
 import numpy as np
-import xarray as xr
-
 
 def mean_min_max_temperatures(df):    
     ds_mean = df.mean(["longitude", "latitude"])
