@@ -15,7 +15,11 @@ setup(
         'datetime'
         
     ],
-    #scripts=['scripts/plotting.py','scripts/io_TSA.py','scripts/io_TSA.py'],
+    scripts=['scripts/io_TSA.py',
+             'scripts/preprocessing.py',
+             'scripts/calculation.py',
+             'scripts/postprocessing.py',
+             'scripts/plotting.py'],
     entry_points={
         'console_scripts': [
             'time_series_analysis = scripts.cli:cli',
