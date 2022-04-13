@@ -33,7 +33,7 @@ conda activate mynewenv
 ```
 then
 ```
-pip install -editable .
+pip install --editable .
 ```
 
 ### Executing program
