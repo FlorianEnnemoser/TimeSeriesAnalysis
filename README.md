@@ -1,4 +1,9 @@
 # Time Series Analysis
+Create a plot of temperature data, even with trends and anomalies by typing
+```
+plt_tsa --input_file={temperature_data.nc} --absanom --trend --anomaly
+```
+into the commandline.
 ## Description
 A short program to read in temperature data from ZAMG (in a csv format) or netCDF4 files. 
 After reading the data, the time series can be analyzed in several ways.
