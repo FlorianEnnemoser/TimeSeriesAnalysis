@@ -1,7 +1,4 @@
 # Time Series Analysis
-
-Simple overview of use/purpose.
-
 ## Description
 A short program to read in temperature data from ZAMG (in a csv format) or netCDF4 files. 
 After reading the data, the time series can be analyzed in several ways.
@@ -11,12 +8,14 @@ After reading the data, the time series can be analyzed in several ways.
 
 ### Dependencies
 Prerequisits for this script are:
-* Click
+
+* click
 * numpy
 * pandas
 * matplotlib
 * xarray
 * netCDF4
+
 They will be installed automatically, see next point.
 
 ### Installing
