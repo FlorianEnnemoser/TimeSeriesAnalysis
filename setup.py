@@ -1,18 +1,18 @@
 from setuptools import setup,find_packages
 
 setup(
-    name='create_time_series_ex03',
+    name='PlotTimeSeries',
     version='0.1.0',
     packages=find_packages(),
     include_package_data=True,
+    license = "MIT",
     install_requires=[
-        'Click',
+        'click',
         'numpy',
         'pandas',
         'matplotlib',
         'xarray',
         'netcdf4',
-        'datetime'
         
     ],
     scripts=['scripts/io_TSA.py',
@@ -22,7 +22,7 @@ setup(
              'scripts/plotting.py'],
     entry_points={
         'console_scripts': [
-            'time_series_analysis = scripts.cli:cli',
+            'plt_tsa = scripts.cli:tsa',
         ],
     },
 )

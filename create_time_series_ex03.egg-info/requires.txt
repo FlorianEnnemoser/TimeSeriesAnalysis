@@ -1,7 +1,0 @@
-Click
-numpy
-pandas
-matplotlib
-xarray
-netcdf4
-datetime

@@ -1,2 +1,0 @@
-[console_scripts]
-time_series_analysis = scripts.cli:cli
